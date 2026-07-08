@@ -5,7 +5,7 @@ import { collectFromSources } from "@/lib/news";
 import { getMockCollectionResult } from "@/lib/mock-data";
 import { notifyUsersAboutNewNews } from "@/lib/bot/notifier";
 
-export async function POST() {
+async function handleCollect() {
   const dbAvailable = await isDatabaseAvailable();
 
   if (!dbAvailable) {
@@ -54,4 +54,12 @@ export async function POST() {
       { status: 500 }
     );
   }
+}
+
+export async function POST() {
+  return handleCollect();
+}
+
+export async function GET() {
+  return handleCollect();
 }
