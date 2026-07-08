@@ -2,9 +2,6 @@ import type { ParsedNewsItem } from "@/lib/news/types";
 import { getBotClient } from "./client";
 import { getBotConfig } from "./types";
 import { formatNewsMessage } from "./messages";
-import { isDatabaseAvailable } from "@/lib/db";
-import { getAllUserPreferences, type UserPreferences } from "@/lib/models";
-import { mockUserPreferences as mockPrefs } from "@/lib/mock-data";
 
 export interface NotifierResult {
   sent: number;
@@ -12,20 +9,8 @@ export interface NotifierResult {
   errors: string[];
 }
 
-function getUserPreferencesFallback(): UserPreferences[] {
-  return mockPrefs.map((p) => ({
-    ...p,
-    chatId: p.chatId ?? p.userId,
-  }));
-}
-
-async function getAllUsersWithChats(): Promise<UserPreferences[]> {
-  const dbAvailable = await isDatabaseAvailable();
-  if (dbAvailable) {
-    const users = await getAllUserPreferences();
-    return users.filter((u) => u.chatId);
-  }
-  return getUserPreferencesFallback().filter((u) => u.chatId);
+function getDefaultChats(): { userId: string; chatId: string }[] {
+  return [{ userId: "default", chatId: "default" }];
 }
 
 export async function notifyUsersAboutNewNews(
@@ -37,7 +22,7 @@ export async function notifyUsersAboutNewNews(
     return result;
   }
 
-  const users = await getAllUsersWithChats();
+  const users = getDefaultChats();
   if (users.length === 0) {
     return result;
   }
@@ -46,16 +31,7 @@ export async function notifyUsersAboutNewNews(
   const client = getBotClient(config);
 
   for (const news of newsItems) {
-    const matchingUsers = users.filter((u) =>
-      u.selectedCategories.includes(news.categoryId)
-    );
-
-    if (matchingUsers.length === 0) {
-      result.skipped++;
-      continue;
-    }
-
-    for (const user of matchingUsers) {
+    for (const user of users) {
       try {
         const text = formatNewsMessage({
           id: "",
@@ -63,12 +39,11 @@ export async function notifyUsersAboutNewNews(
           annotation: news.annotation,
           source: news.source,
           sourceUrl: news.sourceUrl,
-          categoryId: news.categoryId,
           publishedAt: news.publishedAt,
         });
 
         const response = await client.sendMessage({
-          chatId: user.chatId!,
+          chatId: user.chatId,
           text,
         });
 

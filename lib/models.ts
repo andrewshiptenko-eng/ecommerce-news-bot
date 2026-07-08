@@ -25,17 +25,9 @@ export interface NewsRecord {
   annotation: string;
   source: string;
   sourceUrl: string;
-  categoryId: string;
   publishedAt: string;
   fingerprint: string;
   createdAt: string;
-}
-
-export interface UserPreferences {
-  userId: string;
-  selectedCategories: string[];
-  chatId?: string;
-  updatedAt: string;
 }
 
 export async function getServiceById(id: string): Promise<Service | null> {
@@ -224,47 +216,4 @@ export async function getNewsById(id: string): Promise<NewsRecord | null> {
     })
   );
   return (result.Item as NewsRecord) ?? null;
-}
-
-export async function getUserPreferences(
-  userId: string
-): Promise<UserPreferences | null> {
-  const result = await docClient.send(
-    new GetCommand({
-      TableName: TableName.USER_PREFERENCES,
-      Key: { userId },
-    })
-  );
-  return (result.Item as UserPreferences) ?? null;
-}
-
-export async function getAllUserPreferences(): Promise<UserPreferences[]> {
-  const result = await docClient.send(
-    new ScanCommand({
-      TableName: TableName.USER_PREFERENCES,
-    })
-  );
-  return (result.Items as UserPreferences[]) ?? [];
-}
-
-export async function setUserPreferences(
-  userId: string,
-  selectedCategories: string[],
-  chatId?: string
-): Promise<UserPreferences> {
-  const preferences: UserPreferences = {
-    userId,
-    selectedCategories,
-    chatId,
-    updatedAt: new Date().toISOString(),
-  };
-
-  await docClient.send(
-    new PutCommand({
-      TableName: TableName.USER_PREFERENCES,
-      Item: preferences,
-    })
-  );
-
-  return preferences;
 }

@@ -24,8 +24,7 @@ export class BotClient {
           body: JSON.stringify({
             chat_id: message.chatId,
             text: message.text,
-            title: message.title,
-            link: message.link,
+            parse_mode: "Markdown",
           }),
         }
       );
@@ -63,6 +62,41 @@ export class BotClient {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: this.config.webhookUrl }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        return { ok: false, error: `HTTP ${response.status}: ${errorBody}` };
+      }
+
+      return { ok: true };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { ok: false, error: message };
+    }
+  }
+
+  async setMyCommands(): Promise<BotApiResponse> {
+    try {
+      const response = await fetch(
+        `${this.config.apiUrl}/bot${this.config.token}/setMyCommands`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            commands: [
+              {
+                command: "start",
+                description: "Запустить бота и получить приветствие",
+              },
+              {
+                command: "help",
+                description: "Показать список доступных команд",
+              },
+              { command: "news", description: "Получить последние новости" },
+            ],
+          }),
         }
       );
 

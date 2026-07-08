@@ -68,10 +68,13 @@ export async function PUT(_request: NextRequest) {
       );
     }
 
+    const commandsResult = await client.setMyCommands();
+
     return NextResponse.json({
       ok: true,
       message: "Webhook registered successfully",
       url: config.webhookUrl,
+      commandsSet: commandsResult.ok,
     });
   } catch (error) {
     console.error("Webhook registration error:", error);

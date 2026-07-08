@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { newsCategories, mockNews } from "@/lib/mock-data";
+import { mockNews } from "@/lib/mock-data";
 import { Bot, ExternalLink, Newspaper, Rss } from "lucide-react";
 
 function formatDate(iso: string) {
@@ -17,10 +16,6 @@ function formatDate(iso: string) {
     month: "long",
     year: "numeric",
   });
-}
-
-function getCategoryTitle(id: string) {
-  return newsCategories.find((c) => c.id === id)?.title ?? id;
 }
 
 export default function HomePage() {
@@ -48,7 +43,8 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <Rss className="h-4 w-4 text-primary" />6 категорий
+              <Rss className="h-4 w-4 text-primary" />
+              Свежие новости
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Newspaper className="h-4 w-4 text-primary" />
@@ -59,27 +55,6 @@ export default function HomePage() {
               Мгновенная доставка
             </span>
           </div>
-        </div>
-      </section>
-
-      <section className="container mx-auto max-w-5xl px-4">
-        <div className="mb-8 text-center">
-          <h2 className="mb-2 text-2xl font-bold tracking-tight">
-            Категории новостей
-          </h2>
-          <p className="text-muted-foreground">
-            Выберите интересующие темы и получайте только релевантные новости
-          </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {newsCategories.map((category) => (
-            <Card key={category.id} size="sm">
-              <CardHeader>
-                <CardTitle>{category.title}</CardTitle>
-                <CardDescription>{category.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
         </div>
       </section>
 
@@ -98,12 +73,7 @@ export default function HomePage() {
           {sortedNews.map((news) => (
             <Card key={news.id}>
               <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base">{news.title}</CardTitle>
-                  <Badge variant="secondary" className="shrink-0">
-                    {getCategoryTitle(news.categoryId)}
-                  </Badge>
-                </div>
+                <CardTitle className="text-base">{news.title}</CardTitle>
                 <CardDescription className="line-clamp-2">
                   {news.annotation}
                 </CardDescription>

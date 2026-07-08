@@ -31,7 +31,6 @@ export async function POST() {
         annotation: item.annotation,
         source: item.source,
         sourceUrl: item.sourceUrl,
-        categoryId: item.categoryId,
         publishedAt: item.publishedAt,
         fingerprint: item.fingerprint,
       });

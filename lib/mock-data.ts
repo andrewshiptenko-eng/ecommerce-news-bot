@@ -1,25 +1,4 @@
-import { CATEGORIES, type Category } from "./categories";
-import type { Service, UserPreferences } from "./models";
-
-export const newsCategories: Category[] = CATEGORIES;
-
-export type NewsCategory = Category;
-
-export const mockUserPreferences: UserPreferences[] = [
-  {
-    userId: "default",
-    chatId: "default",
-    selectedCategories: [
-      "marketplaces",
-      "payments",
-      "tech",
-      "logistics",
-      "startups",
-      "regulation",
-    ],
-    updatedAt: new Date().toISOString(),
-  },
-];
+import type { Service } from "./models";
 
 export const mockServices: Service[] = [
   {
@@ -57,7 +36,6 @@ export interface NewsItem {
   annotation: string;
   source: string;
   sourceUrl: string;
-  categoryId: string;
   publishedAt: string;
 }
 
@@ -68,9 +46,8 @@ export const mockNews: NewsItem[] = [
     annotation:
       "Маркетплейс расширяет программу экспресс-доставки, охватив дополнительно 15 городов-миллионников. Время доставки сократится до одного часа по ключевым категориям товаров.",
     source: "Коммерсантъ",
-    sourceUrl: "https://www.kommersant.ru",
-    categoryId: "marketplaces",
-    publishedAt: new Date("2025-06-24").toISOString(),
+    sourceUrl: "https://www.kommersant.ru/doc/8778154",
+    publishedAt: new Date("2026-07-08").toISOString(),
   },
   {
     id: "news-2",
@@ -78,9 +55,8 @@ export const mockNews: NewsItem[] = [
     annotation:
       "Новый способ оплаты позволит покупателям оплачивать заказы без использования банковской карты. Пилотный проект запущен в 200 пунктах выдачи Москвы.",
     source: "РБК",
-    sourceUrl: "https://www.rbc.ru",
-    categoryId: "payments",
-    publishedAt: new Date("2025-06-24").toISOString(),
+    sourceUrl: "https://www.rbc.ru/technology_and_media/08/07/2026/qr-payment",
+    publishedAt: new Date("2026-07-08").toISOString(),
   },
   {
     id: "news-3",
@@ -88,19 +64,18 @@ export const mockNews: NewsItem[] = [
     annotation:
       "Новая модель машинного обучения анализирует историю заказов и поведение пользователя, чтобы предлагать персонализированные подборки товаров.",
     source: "VC.ru",
-    sourceUrl: "https://vc.ru",
-    categoryId: "tech",
-    publishedAt: new Date("2025-06-23").toISOString(),
+    sourceUrl:
+      "https://vc.ru/marketplace/2996993-wildberries-vvel-platnuyu-otmenu-zakazov",
+    publishedAt: new Date("2026-07-07").toISOString(),
   },
   {
     id: "news-4",
     title: "Госдума приняла закон о маркировке товаров на маркетплейсах",
     annotation:
-      "Новый закон обязывает все онлайн-площадки указывать страну происхождения товара и полную информацию о продавце. Закон вступает в силу с 1 сентября 2025 года.",
+      "Новый закон обязывает все онлайн-площадки указывать страну происхождения товара и полную информацию о продавце. Закон вступает в силу с 1 сентября 2026 года.",
     source: "ТАСС",
-    sourceUrl: "https://tass.ru",
-    categoryId: "regulation",
-    publishedAt: new Date("2025-06-23").toISOString(),
+    sourceUrl: "https://tass.ru/ekonomika/20260707/marking-marketplace",
+    publishedAt: new Date("2026-07-07").toISOString(),
   },
   {
     id: "news-5",
@@ -108,9 +83,9 @@ export const mockNews: NewsItem[] = [
     annotation:
       "Компания разрабатывает роботизированные решения для сортировки и упаковки заказов. Инвестиции пойдут на масштабирование производства и выход в регионы.",
     source: "Forbes Russia",
-    sourceUrl: "https://www.forbes.ru",
-    categoryId: "startups",
-    publishedAt: new Date("2025-06-22").toISOString(),
+    sourceUrl:
+      "https://www.forbes.ru/tekhnologii/20260706/logistika-pro-investment",
+    publishedAt: new Date("2026-07-06").toISOString(),
   },
   {
     id: "news-6",
@@ -118,9 +93,8 @@ export const mockNews: NewsItem[] = [
     annotation:
       "Обновлённые постаматы позволяют получить заказ без сканирования QR-кода — достаточно подтверждения через приложение. Функция уже доступна в 500 постаматах Москвы.",
     source: "Интерфакс",
-    sourceUrl: "https://www.interfax.ru",
-    categoryId: "logistics",
-    publishedAt: new Date("2025-06-22").toISOString(),
+    sourceUrl: "https://www.interfax.ru/business/20260706/cdek-postamat",
+    publishedAt: new Date("2026-07-06").toISOString(),
   },
 ];
 
@@ -135,7 +109,6 @@ export function getMockCollectionResult() {
       annotation: n.annotation,
       source: n.source,
       sourceUrl: n.sourceUrl,
-      categoryId: n.categoryId,
       publishedAt: n.publishedAt,
       fingerprint: `${n.title
         .toLowerCase()

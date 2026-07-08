@@ -3,7 +3,6 @@ export interface ParsedNewsItem {
   annotation: string;
   source: string;
   sourceUrl: string;
-  categoryId: string;
   publishedAt: string;
   fingerprint: string;
 }
