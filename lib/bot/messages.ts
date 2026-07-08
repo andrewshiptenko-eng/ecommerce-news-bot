@@ -38,6 +38,13 @@ export function formatNewsMessage(news: NewsItem): string {
   return lines.join("\n");
 }
 
+export function formatNewsError(): string {
+  return (
+    "❌ Не удалось загрузить новости.\n\n" +
+    "База данных временно недоступна. Попробуй позже."
+  );
+}
+
 export function formatNewsList(newsItems: NewsItem[]): string {
   if (newsItems.length === 0) {
     return "Новостей пока нет. Попробуй позже!";

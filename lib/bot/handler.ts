@@ -6,8 +6,10 @@ import {
   formatHelpMessage,
   formatUnknownCommand,
   formatNewsList,
+  formatNewsError,
 } from "./messages";
-import { mockNews } from "@/lib/mock-data";
+import { isDatabaseAvailable } from "@/lib/db";
+import { getRecentNews } from "@/lib/models";
 
 export interface HandlerResult {
   replied: boolean;
@@ -45,10 +47,38 @@ export async function handleIncomingMessage(
   }
 
   if (text === "/news") {
-    const newsToShow = mockNews.slice(0, 5);
+    let newsText: string;
+
+    try {
+      const dbAvailable = await isDatabaseAvailable();
+
+      if (!dbAvailable) {
+        newsText = formatNewsError();
+      } else {
+        const records = await getRecentNews(5);
+
+        if (records.length === 0) {
+          newsText = formatNewsList([]);
+        } else {
+          const newsItems = records.map((r) => ({
+            id: r.id,
+            title: r.title,
+            annotation: r.annotation,
+            source: r.source,
+            sourceUrl: r.sourceUrl,
+            publishedAt: r.publishedAt,
+          }));
+
+          newsText = formatNewsList(newsItems);
+        }
+      }
+    } catch {
+      newsText = formatNewsError();
+    }
+
     const response = await client.sendMessage({
       chatId,
-      text: formatNewsList(newsToShow),
+      text: newsText,
     });
     return { replied: response.ok };
   }
