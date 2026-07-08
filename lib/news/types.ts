@@ -11,6 +11,7 @@ export interface CollectionResult {
   collected: number;
   newItems: number;
   duplicates: number;
+  filtered: number;
   errors: string[];
   items: ParsedNewsItem[];
 }

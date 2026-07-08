@@ -103,6 +103,7 @@ export function getMockCollectionResult() {
     collected: 6,
     newItems: 6,
     duplicates: 0,
+    filtered: 0,
     errors: [],
     items: mockNews.map((n) => ({
       title: n.title,

@@ -1,5 +1,6 @@
 import { NEWS_SOURCES, type NewsSource } from "./sources";
 import { generateFingerprint } from "./deduplicator";
+import { isRelevantNews } from "./filter";
 import type { ParsedNewsItem, CollectionResult } from "./types";
 
 const MAX_ANNOTATION = 1000;
@@ -128,6 +129,7 @@ export async function collectFromSources(
     const items: ParsedNewsItem[] = [];
     const errors: string[] = [];
     let duplicates = 0;
+    let filtered = 0;
 
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
@@ -148,15 +150,20 @@ export async function collectFromSources(
           duplicates++;
           continue;
         }
+        if (!isRelevantNews(item.title, item.annotation)) {
+          filtered++;
+          continue;
+        }
         existingFingerprints.add(item.fingerprint);
         items.push(item);
       }
     }
 
     return {
-      collected: items.length + duplicates,
+      collected: items.length + duplicates + filtered,
       newItems: items.length,
       duplicates,
+      filtered,
       errors,
       items,
     };
