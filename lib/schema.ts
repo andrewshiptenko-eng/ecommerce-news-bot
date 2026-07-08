@@ -7,6 +7,7 @@ import {
 export const TableName = {
   SERVICES: "services",
   NEWS: "news",
+  BOT_SUBSCRIBERS: "bot_subscribers",
 } as const;
 
 export type TableName = (typeof TableName)[keyof typeof TableName];
@@ -48,6 +49,11 @@ export const TABLE_SCHEMAS: Record<TableName, TableSchema> = {
         Projection: { ProjectionType: "ALL" },
       },
     ],
+  },
+  [TableName.BOT_SUBSCRIBERS]: {
+    name: TableName.BOT_SUBSCRIBERS,
+    keySchema: [{ AttributeName: "chatId", KeyType: "HASH" }],
+    attributeDefinitions: [{ AttributeName: "chatId", AttributeType: "S" }],
   },
 };
 

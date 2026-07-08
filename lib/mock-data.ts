@@ -1,4 +1,4 @@
-import type { Service } from "./models";
+import type { Service, BotSubscriber } from "./models";
 
 export const mockServices: Service[] = [
   {
@@ -97,6 +97,8 @@ export const mockNews: NewsItem[] = [
     publishedAt: new Date("2026-07-06").toISOString(),
   },
 ];
+
+export const mockBotSubscribers: BotSubscriber[] = [];
 
 export function getMockCollectionResult() {
   return {

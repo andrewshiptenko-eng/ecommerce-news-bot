@@ -9,7 +9,7 @@ import {
   formatNewsError,
 } from "./messages";
 import { isDatabaseAvailable } from "@/lib/db";
-import { getRecentNews } from "@/lib/models";
+import { getRecentNews, saveBotSubscriber } from "@/lib/models";
 
 export interface HandlerResult {
   replied: boolean;
@@ -22,6 +22,21 @@ export async function handleIncomingMessage(
   const text = message.text?.trim() ?? "";
   const chatId = message.chat.id;
   const firstName = message.from.firstName;
+
+  try {
+    const dbAvailable = await isDatabaseAvailable();
+    if (dbAvailable) {
+      await saveBotSubscriber({
+        chatId: message.chat.id,
+        userId: message.from.id,
+        firstName: message.from.firstName,
+        lastName: message.from.lastName,
+        username: message.from.username,
+      });
+    }
+  } catch {
+    // не блокируем обработку сообщения при ошибке сохранения
+  }
 
   if (!text) {
     return { replied: false };

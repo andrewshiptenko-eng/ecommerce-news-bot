@@ -2,15 +2,12 @@ import type { ParsedNewsItem } from "@/lib/news/types";
 import { getBotClient } from "./client";
 import { getBotConfig } from "./types";
 import { formatNewsMessage } from "./messages";
+import { getAllBotSubscribers } from "@/lib/models";
 
 export interface NotifierResult {
   sent: number;
   skipped: number;
   errors: string[];
-}
-
-function getDefaultChats(): { userId: string; chatId: string }[] {
-  return [{ userId: "default", chatId: "default" }];
 }
 
 export async function notifyUsersAboutNewNews(
@@ -22,7 +19,19 @@ export async function notifyUsersAboutNewNews(
     return result;
   }
 
-  const users = getDefaultChats();
+  let users: { userId: string; chatId: string }[];
+
+  try {
+    const subscribers = await getAllBotSubscribers();
+    users = subscribers.map((s) => ({
+      userId: s.userId,
+      chatId: s.chatId,
+    }));
+  } catch {
+    result.errors.push("failed to fetch subscribers from database");
+    return result;
+  }
+
   if (users.length === 0) {
     return result;
   }

@@ -30,6 +30,16 @@ export interface NewsRecord {
   createdAt: string;
 }
 
+export interface BotSubscriber {
+  chatId: string;
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function getServiceById(id: string): Promise<Service | null> {
   const result = await docClient.send(
     new GetCommand({
@@ -216,4 +226,39 @@ export async function getNewsById(id: string): Promise<NewsRecord | null> {
     })
   );
   return (result.Item as NewsRecord) ?? null;
+}
+
+export async function saveBotSubscriber(data: {
+  chatId: string;
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+}): Promise<void> {
+  const now = new Date().toISOString();
+
+  await docClient.send(
+    new UpdateCommand({
+      TableName: TableName.BOT_SUBSCRIBERS,
+      Key: { chatId: data.chatId },
+      UpdateExpression:
+        "SET userId = :userId, firstName = :firstName, lastName = :lastName, username = :username, updatedAt = :updatedAt",
+      ExpressionAttributeValues: {
+        ":userId": data.userId,
+        ":firstName": data.firstName ?? "",
+        ":lastName": data.lastName ?? "",
+        ":username": data.username ?? "",
+        ":updatedAt": now,
+      },
+    })
+  );
+}
+
+export async function getAllBotSubscribers(): Promise<BotSubscriber[]> {
+  const result = await docClient.send(
+    new ScanCommand({
+      TableName: TableName.BOT_SUBSCRIBERS,
+    })
+  );
+  return (result.Items as BotSubscriber[]) ?? [];
 }
