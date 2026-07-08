@@ -1,5 +1,6 @@
 import type { OutgoingMessage, BotConfig } from "./types";
 import { getBotConfig } from "./types";
+import { escapeMarkdown } from "./escape";
 
 export interface BotApiResponse {
   ok: boolean;
@@ -24,7 +25,7 @@ export class BotClient {
           body: JSON.stringify({
             chat_id: message.chatId,
             text: message.text,
-            parse_mode: "Markdown",
+            parse_mode: "MarkdownV2",
           }),
         }
       );
@@ -50,7 +51,7 @@ export class BotClient {
     annotation: string,
     link: string
   ): Promise<BotApiResponse> {
-    const text = `📰 **${title}**\n\n${annotation}\n\n🔗 [Читать источник](${link})`;
+    const text = `📰 **${escapeMarkdown(title)}**\n\n${escapeMarkdown(annotation)}\n\n🔗 [Читать источник](${link})`;
     return this.sendMessage({ chatId, text, title, link });
   }
 
