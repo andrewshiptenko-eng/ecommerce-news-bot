@@ -17,6 +17,58 @@ export class BotClient {
 
   async sendMessage(message: OutgoingMessage): Promise<BotApiResponse> {
     try {
+      let text = message.text;
+
+      // Preserve MarkdownV2 formatting patterns before escaping
+      const boldPairs: string[] = [];
+      text = text.replace(/\*\*(.+?)\*\*/g, (_, content) => {
+        const idx = boldPairs.length;
+        boldPairs.push(escapeMarkdown(content));
+        return `\x00B${idx}\x00B`;
+      });
+
+      const italicPairs: string[] = [];
+      text = text.replace(/(?<!\*)_(.+?)_(?!\*)/g, (_, content) => {
+        const idx = italicPairs.length;
+        italicPairs.push(escapeMarkdown(content));
+        return `\x00I${idx}\x00I`;
+      });
+
+      const codePairs: string[] = [];
+      text = text.replace(/`(.+?)`/g, (_, content) => {
+        const idx = codePairs.length;
+        codePairs.push(content);
+        return `\x00C${idx}\x00C`;
+      });
+
+      const linkPairs: { label: string; url: string }[] = [];
+      text = text.replace(/\[(.+?)\]\((.+?)\)/g, (_, label, url) => {
+        const idx = linkPairs.length;
+        linkPairs.push({ label, url });
+        return `\x00L${idx}\x00L`;
+      });
+
+      // Escape the remaining text
+      text = escapeMarkdown(text);
+
+      // Restore formatting patterns
+      text = text.replace(
+        /\x00B(\d+)\x00B/g,
+        (_, idx) => `**${boldPairs[Number(idx)]}**`
+      );
+      text = text.replace(
+        /\x00I(\d+)\x00I/g,
+        (_, idx) => `_${italicPairs[Number(idx)]}_`
+      );
+      text = text.replace(
+        /\x00C(\d+)\x00C/g,
+        (_, idx) => `\`${codePairs[Number(idx)]}\``
+      );
+      text = text.replace(/\x00L(\d+)\x00L/g, (_, idx) => {
+        const { label, url } = linkPairs[Number(idx)];
+        return `[${label}](${url})`;
+      });
+
       const response = await fetch(
         `${this.config.apiUrl}/bot${this.config.token}/sendMessage`,
         {
@@ -24,7 +76,7 @@ export class BotClient {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             chat_id: message.chatId,
-            text: message.text,
+            text,
             parse_mode: "MarkdownV2",
           }),
         }
@@ -51,7 +103,7 @@ export class BotClient {
     annotation: string,
     link: string
   ): Promise<BotApiResponse> {
-    const text = `📰 **${escapeMarkdown(title)}**\n\n${escapeMarkdown(annotation)}\n\n🔗 [Читать источник](${link})`;
+    const text = `📰 **${title}**\n\n${annotation}\n\n🔗 [Читать источник](${link})`;
     return this.sendMessage({ chatId, text, title, link });
   }
 

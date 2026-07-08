@@ -1,8 +1,7 @@
 import type { NewsItem } from "@/lib/mock-data";
-import { escapeMarkdown } from "./escape";
 
 export function formatWelcomeMessage(firstName?: string): string {
-  const safeFirstName = firstName ? escapeMarkdown(firstName) : undefined;
+  const safeFirstName = firstName ? firstName : undefined;
   const name = safeFirstName ? `${safeFirstName}, ` : "";
   return (
     `👋 ${name}привет! Я — EcomNewsBot.\n\n` +
@@ -30,12 +29,12 @@ export function formatHelpMessage(): string {
 export function formatNewsMessage(news: NewsItem): string {
   const lines: string[] = [];
 
-  lines.push(`📰 **${escapeMarkdown(news.title)}**`);
+  lines.push(`📰 **${news.title}**`);
   lines.push("");
-  lines.push(escapeMarkdown(news.annotation));
+  lines.push(news.annotation);
   lines.push("");
   lines.push(`🔗 [Читать источник](${news.sourceUrl})`);
-  lines.push(`_Источник: ${escapeMarkdown(news.source)}_`);
+  lines.push(`_Источник: ${news.source}_`);
 
   return lines.join("\n");
 }
@@ -55,8 +54,8 @@ export function formatNewsList(newsItems: NewsItem[]): string {
   const lines: string[] = ["📰 **Последние новости e-commerce:**\n"];
 
   for (const item of newsItems.slice(0, 5)) {
-    lines.push(`• **${escapeMarkdown(item.title)}**`);
-    lines.push(`  ${escapeMarkdown(item.annotation.slice(0, 100))}...`);
+    lines.push(`• **${item.title}**`);
+    lines.push(`  ${item.annotation.slice(0, 100)}...`);
     lines.push(`  🔗 ${item.sourceUrl}`);
     lines.push("");
   }
@@ -66,7 +65,7 @@ export function formatNewsList(newsItems: NewsItem[]): string {
 
 export function formatUnknownCommand(command: string): string {
   return (
-    `❌ Неизвестная команда: \`${escapeMarkdown(command)}\`\n\n` +
+    `❌ Неизвестная команда: \`${command}\`\n\n` +
     `Отправь /help, чтобы увидеть список доступных команд.`
   );
 }

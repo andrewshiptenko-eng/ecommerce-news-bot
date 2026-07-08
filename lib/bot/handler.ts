@@ -1,7 +1,6 @@
 import type { IncomingMessage } from "./types";
 import { getBotClient } from "./client";
 import { getBotConfig } from "./types";
-import { escapeMarkdown } from "./escape";
 import {
   formatWelcomeMessage,
   formatHelpMessage,
@@ -95,7 +94,7 @@ export async function handleIncomingMessage(
   const response = await client.sendMessage({
     chatId,
     text:
-      `Привет! Я понял твоё сообщение: "${escapeMarkdown(text.slice(0, 200))}".\n\n` +
+      `Привет! Я понял твоё сообщение: "${text.slice(0, 200)}".\n\n` +
       `Используй /help, чтобы узнать, что я умею.`,
   });
   return { replied: response.ok };
