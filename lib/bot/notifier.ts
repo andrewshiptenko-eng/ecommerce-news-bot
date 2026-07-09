@@ -1,13 +1,54 @@
 import type { ParsedNewsItem } from "@/lib/news/types";
 import { getBotClient } from "./client";
 import { getBotConfig } from "./types";
-import { formatNewsMessage } from "./messages";
 import { getAllBotSubscribers } from "@/lib/models";
+
+const TELEGRAM_MESSAGE_LIMIT = 4096;
 
 export interface NotifierResult {
   sent: number;
   skipped: number;
   errors: string[];
+}
+
+function buildAggregatedText(items: ParsedNewsItem[]): string {
+  const blocks: string[] = [];
+
+  for (const news of items) {
+    blocks.push(
+      `📰 **${news.title}**\n${news.annotation}\n🔗 [Читать источник](${news.sourceUrl})\n_Источник: ${news.source}_`
+    );
+  }
+
+  return blocks.join("\n\n");
+}
+
+function splitIntoChunks(text: string): string[] {
+  if (text.length <= TELEGRAM_MESSAGE_LIMIT) {
+    return [text];
+  }
+
+  const chunks: string[] = [];
+  const blocks = text.split(/\n\n(?=📰)/);
+
+  let current = "";
+  for (const block of blocks) {
+    const separator = current === "" ? "" : "\n\n";
+    if ((current + separator + block).length > TELEGRAM_MESSAGE_LIMIT) {
+      if (current !== "") {
+        chunks.push(current);
+      }
+      current = block;
+    } else {
+      current += separator + block;
+    }
+  }
+
+  if (current !== "") {
+    chunks.push(current);
+  }
+
+  return chunks;
 }
 
 export async function notifyUsersAboutNewNews(
@@ -38,22 +79,14 @@ export async function notifyUsersAboutNewNews(
 
   const config = getBotConfig();
   const client = getBotClient(config);
+  const chunks = splitIntoChunks(buildAggregatedText(newsItems));
 
-  for (const news of newsItems) {
-    for (const user of users) {
+  for (const user of users) {
+    for (const chunk of chunks) {
       try {
-        const text = formatNewsMessage({
-          id: "",
-          title: news.title,
-          annotation: news.annotation,
-          source: news.source,
-          sourceUrl: news.sourceUrl,
-          publishedAt: news.publishedAt,
-        });
-
         const response = await client.sendMessage({
           chatId: user.chatId,
-          text,
+          text: chunk,
         });
 
         if (response.ok) {
